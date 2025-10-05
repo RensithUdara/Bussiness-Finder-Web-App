@@ -13,16 +13,16 @@ async function initializeAdminPage() {
     // Check admin access
     const hasAccess = await window.authModule.requireAdmin();
     if (!hasAccess) return;
-    
+
     // Initialize auth state
     window.authModule.initializeAuth();
-    
+
     // Set up event listeners
     setupEventListeners();
-    
+
     // Load initial data
     await loadDashboardData();
-    
+
     // Show dashboard tab by default
     showTab('dashboard');
 }
@@ -36,32 +36,32 @@ function setupEventListeners() {
             showTab(tab);
         });
     });
-    
+
     // User management
     const userSearch = document.getElementById('userSearch');
     if (userSearch) {
         userSearch.addEventListener('input', filterUsers);
     }
-    
+
     const userFilter = document.getElementById('userFilter');
     if (userFilter) {
         userFilter.addEventListener('change', filterUsers);
     }
-    
+
     // Pagination
     document.getElementById('prevUsers')?.addEventListener('click', () => changePage('users', -1));
     document.getElementById('nextUsers')?.addEventListener('click', () => changePage('users', 1));
     document.getElementById('prevSearches')?.addEventListener('click', () => changePage('searches', -1));
     document.getElementById('nextSearches')?.addEventListener('click', () => changePage('searches', 1));
-    
+
     // Bulk actions
     document.getElementById('selectAllUsers')?.addEventListener('change', toggleSelectAll);
     document.getElementById('bulkBan')?.addEventListener('click', handleBulkBan);
     document.getElementById('bulkDelete')?.addEventListener('click', handleBulkDelete);
-    
+
     // Export
     document.getElementById('exportSearches')?.addEventListener('click', exportSearchHistory);
-    
+
     // Modal close handlers
     document.querySelectorAll('.modal .close').forEach(closeBtn => {
         closeBtn.addEventListener('click', (e) => {
@@ -69,7 +69,7 @@ function setupEventListeners() {
             if (modal) modal.style.display = 'none';
         });
     });
-    
+
     // Edit user form
     document.getElementById('editUserForm')?.addEventListener('submit', handleUserUpdate);
 }
@@ -81,15 +81,15 @@ async function showTab(tabName) {
         item.classList.remove('active');
     });
     document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-    
+
     // Update content
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.remove('active');
     });
     document.getElementById(tabName).classList.add('active');
-    
+
     currentTab = tabName;
-    
+
     // Load tab-specific data
     switch (tabName) {
         case 'dashboard':
@@ -111,14 +111,14 @@ async function showTab(tabName) {
 async function loadDashboardData() {
     try {
         showLoadingState('dashboard');
-        
+
         // Get statistics
         const [usersSnapshot, searchesSnapshot, bannedUsersSnapshot] = await Promise.all([
             db.collection('users').get(),
             db.collection('searches').get(),
             db.collection('users').where('isBanned', '==', true).get()
         ]);
-        
+
         // Calculate today's searches
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -128,19 +128,19 @@ async function loadDashboardData() {
             const searchDate = timestamp.toDate();
             return searchDate >= today;
         }).length;
-        
+
         // Update statistics
         document.getElementById('totalUsers').textContent = usersSnapshot.size;
         document.getElementById('totalSearches').textContent = searchesSnapshot.size;
         document.getElementById('todaySearches').textContent = todaySearches;
         document.getElementById('bannedUsers').textContent = bannedUsersSnapshot.size;
-        
+
         // Generate charts
         generateBusinessTypeChart(searchesSnapshot.docs);
         generateCityChart(searchesSnapshot.docs);
-        
+
         hideLoadingState('dashboard');
-        
+
     } catch (error) {
         console.error('Error loading dashboard data:', error);
         showNotification('Error loading dashboard data', 'error');
@@ -152,16 +152,16 @@ async function loadDashboardData() {
 async function loadUsersData() {
     try {
         showLoadingState('users');
-        
+
         const snapshot = await db.collection('users').orderBy('registrationDate', 'desc').get();
         usersData = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
         }));
-        
+
         displayUsers();
         hideLoadingState('users');
-        
+
     } catch (error) {
         console.error('Error loading users data:', error);
         showNotification('Error loading users data', 'error');
@@ -175,15 +175,15 @@ function displayUsers(filteredData = null) {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const pageData = data.slice(startIndex, endIndex);
-    
+
     const tbody = document.getElementById('usersTableBody');
     tbody.innerHTML = '';
-    
+
     pageData.forEach(user => {
         const row = createUserRow(user);
         tbody.appendChild(row);
     });
-    
+
     // Update pagination
     updatePagination('users', data.length);
 }
@@ -191,12 +191,12 @@ function displayUsers(filteredData = null) {
 // Create user table row
 function createUserRow(user) {
     const row = document.createElement('tr');
-    
+
     const statusBadges = [];
     if (user.isAdmin) statusBadges.push('<span class="badge badge-admin">Admin</span>');
     if (user.isBanned) statusBadges.push('<span class="badge badge-banned">Banned</span>');
     if (!user.isBanned && !user.isAdmin) statusBadges.push('<span class="badge badge-active">Active</span>');
-    
+
     row.innerHTML = `
         <td><input type="checkbox" class="user-checkbox" data-user-id="${user.id}"></td>
         <td>${escapeHtml(user.username || 'N/A')}</td>
@@ -220,7 +220,7 @@ function createUserRow(user) {
             </div>
         </td>
     `;
-    
+
     return row;
 }
 
@@ -228,11 +228,11 @@ function createUserRow(user) {
 function filterUsers() {
     const searchTerm = document.getElementById('userSearch').value.toLowerCase();
     const filterType = document.getElementById('userFilter').value;
-    
+
     let filtered = usersData.filter(user => {
-        const matchesSearch = user.username?.toLowerCase().includes(searchTerm) || 
-                             user.email?.toLowerCase().includes(searchTerm);
-        
+        const matchesSearch = user.username?.toLowerCase().includes(searchTerm) ||
+            user.email?.toLowerCase().includes(searchTerm);
+
         let matchesFilter = true;
         switch (filterType) {
             case 'admin':
@@ -245,26 +245,26 @@ function filterUsers() {
                 matchesFilter = !user.isBanned && !user.isAdmin;
                 break;
         }
-        
+
         return matchesSearch && matchesFilter;
     });
-    
+
     currentPage = 1; // Reset to first page
     displayUsers(filtered);
 }
 
 // Edit user
-window.editUser = function(userId) {
+window.editUser = function (userId) {
     const user = usersData.find(u => u.id === userId);
     if (!user) return;
-    
+
     // Populate form
     document.getElementById('editUserId').value = userId;
     document.getElementById('editUsername').value = user.username || '';
     document.getElementById('editEmail').value = user.email || '';
     document.getElementById('editTrialCount').value = user.trialCount || 0;
     document.getElementById('editIsAdmin').checked = user.isAdmin || false;
-    
+
     // Show modal
     document.getElementById('editUserModal').style.display = 'block';
 };
@@ -272,13 +272,13 @@ window.editUser = function(userId) {
 // Handle user update
 async function handleUserUpdate(e) {
     e.preventDefault();
-    
+
     const userId = document.getElementById('editUserId').value;
     const username = document.getElementById('editUsername').value;
     const email = document.getElementById('editEmail').value;
     const trialCount = parseInt(document.getElementById('editTrialCount').value);
     const isAdmin = document.getElementById('editIsAdmin').checked;
-    
+
     try {
         await db.collection('users').doc(userId).update({
             username,
@@ -287,11 +287,11 @@ async function handleUserUpdate(e) {
             isAdmin,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        
+
         showNotification('User updated successfully', 'success');
         document.getElementById('editUserModal').style.display = 'none';
         await loadUsersData();
-        
+
     } catch (error) {
         console.error('Error updating user:', error);
         showNotification('Error updating user', 'error');
@@ -299,18 +299,18 @@ async function handleUserUpdate(e) {
 }
 
 // Ban user
-window.banUser = async function(userId) {
+window.banUser = async function (userId) {
     if (!confirm('Are you sure you want to ban this user?')) return;
-    
+
     try {
         await db.collection('users').doc(userId).update({
             isBanned: true,
             bannedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        
+
         showNotification('User banned successfully', 'success');
         await loadUsersData();
-        
+
     } catch (error) {
         console.error('Error banning user:', error);
         showNotification('Error banning user', 'error');
@@ -318,18 +318,18 @@ window.banUser = async function(userId) {
 };
 
 // Unban user
-window.unbanUser = async function(userId) {
+window.unbanUser = async function (userId) {
     if (!confirm('Are you sure you want to unban this user?')) return;
-    
+
     try {
         await db.collection('users').doc(userId).update({
             isBanned: false,
             unbannedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        
+
         showNotification('User unbanned successfully', 'success');
         await loadUsersData();
-        
+
     } catch (error) {
         console.error('Error unbanning user:', error);
         showNotification('Error unbanning user', 'error');
@@ -337,13 +337,13 @@ window.unbanUser = async function(userId) {
 };
 
 // Delete user
-window.deleteUser = async function(userId) {
+window.deleteUser = async function (userId) {
     if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
-    
+
     try {
         // Delete user document
         await db.collection('users').doc(userId).delete();
-        
+
         // You might also want to delete associated searches
         const searchesSnapshot = await db.collection('searches').where('userId', '==', userId).get();
         const batch = db.batch();
@@ -351,10 +351,10 @@ window.deleteUser = async function(userId) {
             batch.delete(doc.ref);
         });
         await batch.commit();
-        
+
         showNotification('User deleted successfully', 'success');
         await loadUsersData();
-        
+
     } catch (error) {
         console.error('Error deleting user:', error);
         showNotification('Error deleting user', 'error');
@@ -365,21 +365,21 @@ window.deleteUser = async function(userId) {
 async function loadSearchesData() {
     try {
         showLoadingState('searches');
-        
+
         const snapshot = await db.collection('searches').orderBy('timestamp', 'desc').limit(500).get();
-        
+
         // Get user data for each search
         const userIds = [...new Set(snapshot.docs.map(doc => doc.data().userId))];
         const userPromises = userIds.map(uid => db.collection('users').doc(uid).get());
         const userDocs = await Promise.all(userPromises);
-        
+
         const userMap = {};
         userDocs.forEach(doc => {
             if (doc.exists) {
                 userMap[doc.id] = doc.data();
             }
         });
-        
+
         searchesData = snapshot.docs.map(doc => {
             const data = doc.data();
             const user = userMap[data.userId];
@@ -389,10 +389,10 @@ async function loadSearchesData() {
                 username: user?.username || 'Unknown'
             };
         });
-        
+
         displaySearches();
         hideLoadingState('searches');
-        
+
     } catch (error) {
         console.error('Error loading searches data:', error);
         showNotification('Error loading searches data', 'error');
@@ -405,15 +405,15 @@ function displaySearches() {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const pageData = searchesData.slice(startIndex, endIndex);
-    
+
     const tbody = document.getElementById('searchesTableBody');
     tbody.innerHTML = '';
-    
+
     pageData.forEach(search => {
         const row = createSearchRow(search);
         tbody.appendChild(row);
     });
-    
+
     // Update pagination
     updatePagination('searches', searchesData.length);
 }
@@ -421,7 +421,7 @@ function displaySearches() {
 // Create search table row
 function createSearchRow(search) {
     const row = document.createElement('tr');
-    
+
     row.innerHTML = `
         <td>${escapeHtml(search.username)}</td>
         <td>${escapeHtml(search.city || 'N/A')}</td>
@@ -436,16 +436,16 @@ function createSearchRow(search) {
             </button>
         </td>
     `;
-    
+
     return row;
 }
 
 // View search results
-window.viewSearchResults = async function(searchId) {
+window.viewSearchResults = async function (searchId) {
     try {
         const resultsSnapshot = await db.collection('searches').doc(searchId).collection('results').get();
         const results = resultsSnapshot.docs.map(doc => doc.data());
-        
+
         const content = document.getElementById('searchResultsContent');
         content.innerHTML = `
             <h4>Search Results (${results.length} businesses found)</h4>
@@ -461,9 +461,9 @@ window.viewSearchResults = async function(searchId) {
                 `).join('')}
             </div>
         `;
-        
+
         document.getElementById('searchResultsModal').style.display = 'block';
-        
+
     } catch (error) {
         console.error('Error loading search results:', error);
         showNotification('Error loading search results', 'error');
@@ -474,16 +474,16 @@ window.viewSearchResults = async function(searchId) {
 async function loadIPData() {
     try {
         showLoadingState('ip-usage');
-        
+
         const snapshot = await db.collection('ipUsage').orderBy('accountCount', 'desc').get();
         ipData = snapshot.docs.map(doc => ({
             ip: doc.id,
             ...doc.data()
         }));
-        
+
         displayIPData();
         hideLoadingState('ip-usage');
-        
+
     } catch (error) {
         console.error('Error loading IP data:', error);
         showNotification('Error loading IP data', 'error');
@@ -495,7 +495,7 @@ async function loadIPData() {
 function displayIPData() {
     const tbody = document.getElementById('ipTableBody');
     tbody.innerHTML = '';
-    
+
     ipData.forEach(ip => {
         const row = createIPRow(ip);
         tbody.appendChild(row);
@@ -505,16 +505,16 @@ function displayIPData() {
 // Create IP table row
 function createIPRow(ip) {
     const row = document.createElement('tr');
-    
+
     // Highlight suspicious IPs
     if (ip.accountCount > 3) {
         row.style.backgroundColor = '#fff3cd';
     }
-    
-    const statusBadge = ip.isBlocked ? 
-        '<span class="badge badge-blocked">Blocked</span>' : 
+
+    const statusBadge = ip.isBlocked ?
+        '<span class="badge badge-blocked">Blocked</span>' :
         (ip.accountCount > 3 ? '<span class="badge badge-suspicious">Suspicious</span>' : '<span class="badge badge-active">Normal</span>');
-    
+
     row.innerHTML = `
         <td>${escapeHtml(ip.ip)}</td>
         <td>${ip.accountCount || 0}</td>
@@ -535,26 +535,26 @@ function createIPRow(ip) {
             </div>
         </td>
     `;
-    
+
     return row;
 }
 
 // Generate business type chart
 function generateBusinessTypeChart(searches) {
     const businessTypeCounts = {};
-    
+
     searches.forEach(doc => {
         const businessType = doc.data().businessType;
         if (businessType) {
             businessTypeCounts[businessType] = (businessTypeCounts[businessType] || 0) + 1;
         }
     });
-    
+
     const chartContainer = document.getElementById('businessTypeChart');
     const sortedTypes = Object.entries(businessTypeCounts)
-        .sort(([,a], [,b]) => b - a)
+        .sort(([, a], [, b]) => b - a)
         .slice(0, 5);
-    
+
     chartContainer.innerHTML = `
         <div class="simple-chart">
             ${sortedTypes.map(([type, count]) => `
@@ -582,19 +582,19 @@ function generateBusinessTypeChart(searches) {
 // Generate city chart
 function generateCityChart(searches) {
     const cityCounts = {};
-    
+
     searches.forEach(doc => {
         const city = doc.data().city;
         if (city) {
             cityCounts[city] = (cityCounts[city] || 0) + 1;
         }
     });
-    
+
     const chartContainer = document.getElementById('cityChart');
     const sortedCities = Object.entries(cityCounts)
-        .sort(([,a], [,b]) => b - a)
+        .sort(([, a], [, b]) => b - a)
         .slice(0, 5);
-    
+
     chartContainer.innerHTML = `
         <div class="simple-chart">
             ${sortedCities.map(([city, count]) => `
@@ -624,7 +624,7 @@ function exportSearchHistory() {
             search.ipAddress || ''
         ])
     ].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
-    
+
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -638,7 +638,7 @@ function exportSearchHistory() {
 function changePage(type, direction) {
     currentPage += direction;
     if (currentPage < 1) currentPage = 1;
-    
+
     if (type === 'users') {
         displayUsers();
     } else if (type === 'searches') {
@@ -651,15 +651,15 @@ function updatePagination(type, totalItems) {
     const pageInfo = document.getElementById(`${type}PageInfo`);
     const prevBtn = document.getElementById(`prev${type.charAt(0).toUpperCase() + type.slice(1)}`);
     const nextBtn = document.getElementById(`next${type.charAt(0).toUpperCase() + type.slice(1)}`);
-    
+
     if (pageInfo) {
         pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
     }
-    
+
     if (prevBtn) {
         prevBtn.disabled = currentPage <= 1;
     }
-    
+
     if (nextBtn) {
         nextBtn.disabled = currentPage >= totalPages;
     }
@@ -702,7 +702,7 @@ function getBusinessTypeLabel(type) {
         'real_estate_agency': 'Real Estate Agencies',
         'tourist_attraction': 'Tourist Attractions'
     };
-    
+
     return labels[type] || 'Businesses';
 }
 
@@ -716,7 +716,7 @@ function escapeHtml(text) {
         '"': '&quot;',
         "'": '&#039;'
     };
-    return text.toString().replace(/[&<>"']/g, function(m) { return map[m]; });
+    return text.toString().replace(/[&<>"']/g, function (m) { return map[m]; });
 }
 
 // Export admin module
