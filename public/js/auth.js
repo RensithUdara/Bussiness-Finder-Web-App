@@ -540,6 +540,18 @@ function hideMessages() {
     if (successMessage) successMessage.style.display = 'none';
 }
 
+// Get user data from Firestore
+async function getUserData(uid) {
+    try {
+        const db = getDb();
+        const userDoc = await db.collection('users').doc(uid).get();
+        return userDoc.exists ? userDoc.data() : null;
+    } catch (error) {
+        console.error('Error getting user data:', error);
+        return null;
+    }
+}
+
 // Initialize auth when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     // Only initialize auth if not on specific pages that handle it themselves
