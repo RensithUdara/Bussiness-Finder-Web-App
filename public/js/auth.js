@@ -140,6 +140,7 @@ async function handleAuthStateChange(user) {
 // Handle user logout
 async function handleLogout() {
     try {
+        const auth = getAuth();
         await auth.signOut();
         showNotification('Logged out successfully', 'success');
 
