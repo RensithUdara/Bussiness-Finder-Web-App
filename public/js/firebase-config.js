@@ -13,9 +13,9 @@ const firebaseConfig = window.appConfig ? window.appConfig.firebase : {
 firebase.initializeApp(firebaseConfig);
 
 // Initialize Firebase services
-const auth = firebase.auth();
-const db = firebase.firestore();
-const functions = firebase.functions();
+const firebaseAuth = firebase.auth();
+const firebaseDb = firebase.firestore();
+const firebaseFunctions = firebase.functions();
 
 // For development, connect to emulators
 const isDevelopment = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
@@ -27,27 +27,27 @@ if (shouldUseEmulators) {
 
     // Connect to emulators
     if (emulatorConfig.auth) {
-        auth.useEmulator(emulatorConfig.auth);
+        firebaseAuth.useEmulator(emulatorConfig.auth);
     }
     if (emulatorConfig.firestore) {
-        db.useEmulator('localhost', 8080);
+        firebaseDb.useEmulator('localhost', 8080);
     }
     if (emulatorConfig.functions) {
-        functions.useEmulator('localhost', 5001);
+        firebaseFunctions.useEmulator('localhost', 5001);
     }
 }
 
 // Export initialized services
 window.firebaseApp = {
-    auth,
-    db,
-    functions
+    auth: firebaseAuth,
+    db: firebaseDb,
+    functions: firebaseFunctions
 };
 
 // Helper function to get current user
 window.getCurrentUser = () => {
     return new Promise((resolve, reject) => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
+        const unsubscribe = firebaseAuth.onAuthStateChanged(user => {
             unsubscribe();
             resolve(user);
         }, reject);
