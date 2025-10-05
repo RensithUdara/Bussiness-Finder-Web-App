@@ -1,26 +1,33 @@
 // Authentication handling
-// Get Firebase services from global scope
-function getFirebaseServices() {
-    return window.firebaseApp || {};
+// Wait for Firebase services to be initialized
+function waitForFirebase() {
+    return new Promise((resolve, reject) => {
+        const checkFirebase = () => {
+            if (window.firebaseApp && window.firebaseApp.auth && window.firebaseApp.db) {
+                resolve(window.firebaseApp);
+            } else {
+                console.log('Waiting for Firebase initialization...');
+                setTimeout(checkFirebase, 100);
+            }
+        };
+        checkFirebase();
+        
+        // Timeout after 10 seconds
+        setTimeout(() => {
+            reject(new Error('Firebase initialization timeout'));
+        }, 10000);
+    });
 }
 
 // Helper to get auth service safely
-function getAuth() {
-    const services = getFirebaseServices();
-    if (!services.auth) {
-        console.error('Firebase auth not initialized');
-        throw new Error('Firebase auth not available');
-    }
+async function getAuth() {
+    const services = await waitForFirebase();
     return services.auth;
 }
 
 // Helper to get db service safely
-function getDb() {
-    const services = getFirebaseServices();
-    if (!services.db) {
-        console.error('Firebase db not initialized');
-        throw new Error('Firebase db not available');
-    }
+async function getDb() {
+    const services = await waitForFirebase();
     return services.db;
 }
 
@@ -29,16 +36,20 @@ let currentUser = null;
 let unsubscribeAuth = null;
 
 // Set up auth state listener
-function initializeAuth() {
+async function initializeAuth() {
     if (unsubscribeAuth) {
         unsubscribeAuth();
     }
 
-    const auth = getAuth();
-    unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
-        currentUser = user;
-        await handleAuthStateChange(user);
-    });
+    try {
+        const auth = await getAuth();
+        unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            await handleAuthStateChange(user);
+        });
+    } catch (error) {
+        console.error('Failed to initialize auth:', error);
+    }
 }
 
 // Handle authentication state changes
