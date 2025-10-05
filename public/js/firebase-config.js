@@ -47,7 +47,7 @@ window.getCurrentUser = () => {
 // Helper function to check if user is admin
 window.checkAdminStatus = async (user) => {
     if (!user) return false;
-    
+
     try {
         const userDoc = await db.collection('users').doc(user.uid).get();
         return userDoc.exists && userDoc.data().isAdmin === true;
@@ -71,7 +71,7 @@ window.getUserData = async (uid) => {
 // Helper function to format dates
 window.formatDate = (timestamp) => {
     if (!timestamp) return 'Never';
-    
+
     let date;
     if (timestamp.toDate) {
         // Firestore timestamp
@@ -81,22 +81,22 @@ window.formatDate = (timestamp) => {
     } else {
         date = new Date(timestamp);
     }
-    
+
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
 };
 
 // Helper function to format phone numbers
 window.formatPhoneNumber = (phone) => {
     if (!phone) return 'N/A';
-    
+
     // Remove all non-digit characters
     const cleaned = phone.replace(/\D/g, '');
-    
+
     // Format as (XXX) XXX-XXXX if it's a US number
     if (cleaned.length === 10) {
         return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
     }
-    
+
     return phone;
 };
 
@@ -105,11 +105,11 @@ window.calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371; // Radius of the Earth in kilometers
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-        Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c; // Distance in kilometers
     return Math.round(distance * 10) / 10; // Round to 1 decimal place
 };
@@ -119,7 +119,7 @@ window.showNotification = (message, type = 'info', duration = 5000) => {
     // Remove existing notifications
     const existingNotifications = document.querySelectorAll('.notification');
     existingNotifications.forEach(notification => notification.remove());
-    
+
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
@@ -132,7 +132,7 @@ window.showNotification = (message, type = 'info', duration = 5000) => {
             </button>
         </div>
     `;
-    
+
     // Add styles
     notification.style.cssText = `
         position: fixed;
@@ -148,17 +148,17 @@ window.showNotification = (message, type = 'info', duration = 5000) => {
         min-width: 300px;
         max-width: 500px;
     `;
-    
+
     // Add to page
     document.body.appendChild(notification);
-    
+
     // Handle close button
     const closeBtn = notification.querySelector('.notification-close');
     closeBtn.addEventListener('click', () => {
         notification.style.animation = 'slideOutRight 0.3s ease';
         setTimeout(() => notification.remove(), 300);
     });
-    
+
     // Auto-remove after duration
     if (duration > 0) {
         setTimeout(() => {
