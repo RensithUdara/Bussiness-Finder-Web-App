@@ -1,12 +1,12 @@
 // Firebase Configuration
-// Configuration for bussiness-finder project
-const firebaseConfig = {
-    apiKey: "AIzaSyB7YGGpGOzRNgFxgNvT2YrK4Lx1YoMcT9w", // This will be replaced with your actual key
+// Load configuration from config.js
+const firebaseConfig = window.appConfig ? window.appConfig.firebase : {
+    apiKey: "AIzaSyB7YGGpGOzRNgFxgNvT2YrK4Lx1YoMcT9w", // Replace with your actual key
     authDomain: "bussiness-finder-8a04d.firebaseapp.com",
     projectId: "bussiness-finder-8a04d",
     storageBucket: "bussiness-finder-8a04d.appspot.com",
     messagingSenderId: "895982258653",
-    appId: "1:895982258653:web:abcdef1234567890" // This will be replaced with your actual app ID
+    appId: "1:895982258653:web:abcdef1234567890" // Replace with your actual app ID
 };
 
 // Initialize Firebase
@@ -17,13 +17,24 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const functions = firebase.functions();
 
-// For development, you can connect to emulators
-// Enable emulators for local development
-if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-    // Uncomment these lines when Firebase emulators are running
-    // auth.useEmulator('http://localhost:9099');
-    db.useEmulator('localhost', 8080);
-    functions.useEmulator('localhost', 5001);
+// For development, connect to emulators
+const isDevelopment = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+const shouldUseEmulators = window.appConfig?.development?.useEmulators && isDevelopment;
+
+if (shouldUseEmulators) {
+    const emulatorConfig = window.appConfig.development.emulators;
+    console.log('Using Firebase emulators for development');
+    
+    // Connect to emulators
+    if (emulatorConfig.auth) {
+        auth.useEmulator(emulatorConfig.auth);
+    }
+    if (emulatorConfig.firestore) {
+        db.useEmulator('localhost', 8080);
+    }
+    if (emulatorConfig.functions) {
+        functions.useEmulator('localhost', 5001);
+    }
 }
 
 // Export initialized services
