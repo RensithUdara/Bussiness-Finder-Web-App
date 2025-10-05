@@ -51,11 +51,11 @@ exports.searchBusinesses = functions.https.onCall(async (data, context) => {
         // Check for cached results (optional optimization)
         const cacheKey = `${city.toLowerCase()}-${businessType}-${radiusKm}`;
         const cacheDoc = await db.collection('searchCache').doc(cacheKey).get();
-        
+
         if (cacheDoc.exists) {
             const cacheData = cacheDoc.data();
             const cacheAge = Date.now() - cacheData.timestamp.toMillis();
-            
+
             // Use cache if less than 15 minutes old
             if (cacheAge < 15 * 60 * 1000) {
                 console.log('Returning cached results for:', cacheKey);
@@ -202,11 +202,11 @@ exports.searchBusinesses = functions.https.onCall(async (data, context) => {
 
     } catch (error) {
         console.error('Search error:', error);
-        
+
         if (error instanceof functions.https.HttpsError) {
             throw error;
         }
-        
+
         throw new functions.https.HttpsError('internal', 'Search failed');
     }
 });
@@ -219,11 +219,11 @@ exports.trackUserIP = functions.auth.user().onCreate(async (user) => {
         // Note: Getting real IP from auth trigger is limited
         // In production, you might need to use a different approach
         const ipAddress = 'auth-trigger-ip'; // Placeholder
-        
+
         // Check if IP record exists
         const ipRef = db.collection('ipUsage').doc(ipAddress);
         const ipDoc = await ipRef.get();
-        
+
         if (ipDoc.exists) {
             // Update existing IP record
             await ipRef.update({
@@ -243,7 +243,7 @@ exports.trackUserIP = functions.auth.user().onCreate(async (user) => {
         }
 
         console.log(`IP tracking updated for user: ${user.uid}`);
-        
+
     } catch (error) {
         console.error('Error tracking IP:', error);
     }
@@ -361,11 +361,11 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371; // Radius of the Earth in kilometers
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-        Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c;
     return Math.round(distance * 10) / 10; // Round to 1 decimal place
 }
@@ -375,19 +375,19 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
  */
 exports.cleanupCache = functions.pubsub.schedule('every 24 hours').onRun(async (context) => {
     const cutoffTime = admin.firestore.Timestamp.fromMillis(Date.now() - (24 * 60 * 60 * 1000)); // 24 hours ago
-    
+
     const oldCacheQuery = db.collection('searchCache')
         .where('timestamp', '<', cutoffTime);
-    
+
     const snapshot = await oldCacheQuery.get();
-    
+
     const batch = db.batch();
     snapshot.docs.forEach((doc) => {
         batch.delete(doc.ref);
     });
-    
+
     await batch.commit();
-    
+
     console.log(`Cleaned up ${snapshot.size} old cache entries`);
     return null;
 });
