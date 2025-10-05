@@ -7,19 +7,19 @@ let infoWindow = null;
 // Initialize Google Maps
 function initializeMap(businesses, searchCenter, radius) {
     const mapContainer = document.getElementById('map');
-    
+
     if (!mapContainer || !businesses || !searchCenter) {
         console.error('Map initialization failed: missing required elements');
         return;
     }
-    
+
     // Check if Google Maps API is loaded
     if (typeof google === 'undefined' || !google.maps) {
         console.error('Google Maps API not loaded');
         showMapError();
         return;
     }
-    
+
     try {
         // Create map centered on search location
         map = new google.maps.Map(mapContainer, {
@@ -34,22 +34,22 @@ function initializeMap(businesses, searchCenter, radius) {
             fullscreenControl: true,
             styles: getMapStyles()
         });
-        
+
         // Create info window for markers
         infoWindow = new google.maps.InfoWindow();
-        
+
         // Clear existing markers and circle
         clearMapElements();
-        
+
         // Add search radius circle
         addSearchCircle(searchCenter, radius);
-        
+
         // Add markers for businesses
         addBusinessMarkers(businesses);
-        
+
         // Fit map to show all markers and circle
         fitMapToElements();
-        
+
     } catch (error) {
         console.error('Error initializing map:', error);
         showMapError();
@@ -63,13 +63,13 @@ function clearMapElements() {
         marker.setMap(null);
     });
     markers = [];
-    
+
     // Clear search circle
     if (searchCircle) {
         searchCircle.setMap(null);
         searchCircle = null;
     }
-    
+
     // Close info window
     if (infoWindow) {
         infoWindow.close();
@@ -96,7 +96,7 @@ function addBusinessMarkers(businesses) {
         if (!business.location || !business.location.lat || !business.location.lng) {
             return; // Skip businesses without valid location
         }
-        
+
         const marker = new google.maps.Marker({
             position: {
                 lat: business.location.lat,
@@ -107,13 +107,13 @@ function addBusinessMarkers(businesses) {
             icon: getMarkerIcon(business.rating),
             animation: google.maps.Animation.DROP
         });
-        
+
         // Add click listener to marker
         marker.addListener('click', () => {
             showBusinessInfoWindow(marker, business, index);
             highlightBusinessCard(index);
         });
-        
+
         // Store marker reference
         markers[index] = marker;
     });
@@ -122,7 +122,7 @@ function addBusinessMarkers(businesses) {
 // Get custom marker icon based on rating
 function getMarkerIcon(rating) {
     let color = '#007bff'; // Default blue
-    
+
     if (rating >= 4.5) {
         color = '#28a745'; // Green for excellent ratings
     } else if (rating >= 4.0) {
@@ -134,7 +134,7 @@ function getMarkerIcon(rating) {
     } else if (rating < 3.0) {
         color = '#dc3545'; // Red for poor ratings
     }
-    
+
     return {
         path: google.maps.SymbolPath.CIRCLE,
         fillColor: color,
@@ -148,13 +148,13 @@ function getMarkerIcon(rating) {
 // Show info window for business
 function showBusinessInfoWindow(marker, business, index) {
     const starsHtml = generateStarsHtml(business.rating);
-    const phoneHtml = business.phone ? 
+    const phoneHtml = business.phone ?
         `<p><i class="fas fa-phone"></i> <a href="tel:${business.phone}">${formatPhoneNumber(business.phone)}</a></p>` : '';
-    const websiteHtml = business.website ? 
+    const websiteHtml = business.website ?
         `<p><i class="fas fa-globe"></i> <a href="${business.website}" target="_blank" rel="noopener">Visit Website</a></p>` : '';
-    const addressHtml = business.address ? 
+    const addressHtml = business.address ?
         `<p><i class="fas fa-map-marker-alt"></i> ${business.address}</p>` : '';
-    
+
     const content = `
         <div style="max-width: 300px; font-family: 'Segoe UI', sans-serif;">
             <h4 style="margin: 0 0 10px 0; color: #343a40;">${escapeHtml(business.name)}</h4>
@@ -209,7 +209,7 @@ function showBusinessInfoWindow(marker, business, index) {
             </div>
         </div>
     `;
-    
+
     infoWindow.setContent(content);
     infoWindow.open(map, marker);
 }
@@ -233,13 +233,13 @@ function focusMarker(index) {
     if (markers[index]) {
         map.setCenter(markers[index].getPosition());
         map.setZoom(16);
-        
+
         // Animate marker
         markers[index].setAnimation(google.maps.Animation.BOUNCE);
         setTimeout(() => {
             markers[index].setAnimation(null);
         }, 2000);
-        
+
         // Trigger click to show info window
         google.maps.event.trigger(markers[index], 'click');
     }
@@ -248,19 +248,19 @@ function focusMarker(index) {
 // Fit map to show all elements
 function fitMapToElements() {
     if (!map || markers.length === 0) return;
-    
+
     const bounds = new google.maps.LatLngBounds();
-    
+
     // Include all markers in bounds
     markers.forEach(marker => {
         bounds.extend(marker.getPosition());
     });
-    
+
     // Include search circle bounds
     if (searchCircle) {
         bounds.union(searchCircle.getBounds());
     }
-    
+
     // Fit map to bounds with padding
     map.fitBounds(bounds, {
         top: 50,
@@ -268,7 +268,7 @@ function fitMapToElements() {
         bottom: 50,
         left: 50
     });
-    
+
     // Ensure minimum zoom level for readability
     const listener = google.maps.event.addListener(map, 'bounds_changed', () => {
         if (map.getZoom() > 15) {
@@ -344,25 +344,25 @@ function highlightBusinessCard(index) {
 // Generate stars HTML (imported from search.js)
 function generateStarsHtml(rating) {
     if (!rating) return '';
-    
+
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-    
+
     let starsHtml = '';
-    
+
     for (let i = 0; i < fullStars; i++) {
         starsHtml += '<i class="fas fa-star"></i>';
     }
-    
+
     if (hasHalfStar) {
         starsHtml += '<i class="fas fa-star-half-alt"></i>';
     }
-    
+
     for (let i = 0; i < emptyStars; i++) {
         starsHtml += '<i class="far fa-star"></i>';
     }
-    
+
     return starsHtml;
 }
 
@@ -375,7 +375,7 @@ function escapeHtml(text) {
         '"': '&quot;',
         "'": '&#039;'
     };
-    return text ? text.replace(/[&<>"']/g, function(m) { return map[m]; }) : '';
+    return text ? text.replace(/[&<>"']/g, function (m) { return map[m]; }) : '';
 }
 
 // Handle window resize
