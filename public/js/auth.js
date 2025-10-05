@@ -4,6 +4,26 @@ function getFirebaseServices() {
     return window.firebaseApp || {};
 }
 
+// Helper to get auth service safely
+function getAuth() {
+    const services = getFirebaseServices();
+    if (!services.auth) {
+        console.error('Firebase auth not initialized');
+        throw new Error('Firebase auth not available');
+    }
+    return services.auth;
+}
+
+// Helper to get db service safely
+function getDb() {
+    const services = getFirebaseServices();
+    if (!services.db) {
+        console.error('Firebase db not initialized');
+        throw new Error('Firebase db not available');
+    }
+    return services.db;
+}
+
 // Initialize authentication state listener
 let currentUser = null;
 let unsubscribeAuth = null;
@@ -14,12 +34,7 @@ function initializeAuth() {
         unsubscribeAuth();
     }
 
-    const { auth } = getFirebaseServices();
-    if (!auth) {
-        console.error('Firebase auth not initialized');
-        return;
-    }
-
+    const auth = getAuth();
     unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
         currentUser = user;
         await handleAuthStateChange(user);
@@ -39,6 +54,7 @@ async function handleAuthStateChange(user) {
             // Check if user is banned
             const userData = await getUserData(user.uid);
             if (userData && userData.isBanned) {
+                const auth = getAuth();
                 await auth.signOut();
                 showNotification('Your account has been banned. Please contact support.', 'error');
                 return;
