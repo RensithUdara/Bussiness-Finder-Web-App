@@ -216,6 +216,7 @@ async function handleLogin(e) {
 
     try {
         // Sign in user
+        const auth = getAuth();
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         const user = userCredential.user;
 
