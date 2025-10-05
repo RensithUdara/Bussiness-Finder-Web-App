@@ -24,7 +24,7 @@ const shouldUseEmulators = window.appConfig?.development?.useEmulators && isDeve
 if (shouldUseEmulators) {
     const emulatorConfig = window.appConfig.development.emulators;
     console.log('Using Firebase emulators for development');
-    
+
     // Connect to emulators
     if (emulatorConfig.auth) {
         auth.useEmulator(emulatorConfig.auth);
