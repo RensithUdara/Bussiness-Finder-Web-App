@@ -14,19 +14,19 @@ const config = {
         messagingSenderId: "895982258653", // Replace with your messaging sender ID
         appId: "1:895982258653:web:abcdef1234567890" // Replace with your actual app ID
     },
-    
+
     // Google Maps API Key - Get this from Google Cloud Console
     googleMaps: {
         apiKey: "YOUR_GOOGLE_MAPS_API_KEY_HERE" // Replace with your Google Maps API key
     },
-    
+
     // Application settings
     app: {
         name: "Business Finder",
         version: "1.0.0",
         environment: "development" // development, staging, production
     },
-    
+
     // Development settings
     development: {
         useEmulators: true,
