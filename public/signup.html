@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
+
 <body class="auth-page">
     <div class="auth-container">
         <div class="auth-card">
@@ -25,7 +27,8 @@
                         <i class="fas fa-user"></i>
                         Username
                     </label>
-                    <input type="text" id="username" name="username" placeholder="Choose a username" required minlength="3">
+                    <input type="text" id="username" name="username" placeholder="Choose a username" required
+                        minlength="3">
                     <small class="form-help">At least 3 characters</small>
                 </div>
 
@@ -42,7 +45,8 @@
                         <i class="fas fa-lock"></i>
                         Password
                     </label>
-                    <input type="password" id="password" name="password" placeholder="Create a password" required minlength="8">
+                    <input type="password" id="password" name="password" placeholder="Create a password" required
+                        minlength="8">
                     <small class="form-help">At least 8 characters</small>
                 </div>
 
@@ -51,7 +55,8 @@
                         <i class="fas fa-lock"></i>
                         Confirm Password
                     </label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+                    <input type="password" id="confirmPassword" name="confirmPassword"
+                        placeholder="Confirm your password" required>
                 </div>
 
                 <div class="password-strength">
@@ -65,7 +70,8 @@
                     <label class="checkbox-label">
                         <input type="checkbox" id="agreeTerms" required>
                         <span class="checkmark"></span>
-                        I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a>
+                        I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#"
+                            target="_blank">Privacy Policy</a>
                     </label>
                 </div>
 
@@ -98,9 +104,10 @@
 
     <script>
         // Initialize signup page
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             initializeSignupPage();
         });
     </script>
 </body>
+
 </html>
