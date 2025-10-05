@@ -370,7 +370,7 @@ async function handleSignup(e) {
 
     try {
         // Check if username is already taken
-        const db = getDb();
+        const db = await getDb();
         const usernameQuery = await db.collection('users')
             .where('username', '==', username)
             .limit(1)
@@ -383,7 +383,7 @@ async function handleSignup(e) {
         }
 
         // Create user account
-        const auth = getAuth();
+        const auth = await getAuth();
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
 
@@ -554,7 +554,7 @@ function hideMessages() {
 // Get user data from Firestore
 async function getUserData(uid) {
     try {
-        const db = getDb();
+        const db = await getDb();
         const userDoc = await db.collection('users').doc(uid).get();
         return userDoc.exists ? userDoc.data() : null;
     } catch (error) {
@@ -564,12 +564,12 @@ async function getUserData(uid) {
 }
 
 // Initialize auth when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Only initialize auth if not on specific pages that handle it themselves
     if (!window.location.pathname.includes('login.html') &&
         !window.location.pathname.includes('signup.html') &&
         !window.location.pathname.includes('admin.html')) {
-        initializeAuth();
+        await initializeAuth();
     }
 });
 
