@@ -22,7 +22,7 @@ exports.searchBusinesses = functions.https.onCall(async (data, context) => {
         // Get user's remaining searches
         const userDoc = await db.collection('users').doc(context.auth.uid).get();
         const userData = userDoc.data();
-        
+
         if (!userData) {
             throw new functions.https.HttpsError('not-found', 'User not found.');
         }
@@ -99,7 +99,7 @@ exports.createUserProfile = functions.auth.user().onCreate(async (user) => {
             isActive: true,
             role: 'user'
         });
-        
+
         console.log('User profile created for:', user.email);
     } catch (error) {
         console.error('Error creating user profile:', error);
@@ -125,7 +125,7 @@ exports.getUserStats = functions.https.onCall(async (data, context) => {
 
         const userDoc = await db.collection('users').doc(context.auth.uid).get();
         const userData = userDoc.data();
-        
+
         if (!userData || userData.role !== 'admin') {
             throw new functions.https.HttpsError('permission-denied', 'Admin access required.');
         }
@@ -183,7 +183,7 @@ exports.updateUserSearches = functions.https.onCall(async (data, context) => {
 
         const userDoc = await db.collection('users').doc(context.auth.uid).get();
         const userData = userDoc.data();
-        
+
         if (!userData || userData.role !== 'admin') {
             throw new functions.https.HttpsError('permission-denied', 'Admin access required.');
         }
