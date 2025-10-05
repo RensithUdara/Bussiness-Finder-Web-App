@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Finder - Find Local Businesses</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-search"></i>
+                <span>Business Finder</span>
+            </div>
+            <div class="nav-menu">
+                <div id="authLinks" class="nav-links">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+                <div id="trialCounter" class="trial-counter" style="display: none;">
+                    <i class="fas fa-star"></i>
+                    <span id="trialCount">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="hero-section">
+            <h1>Find Local Businesses</h1>
+            <p>Search for businesses in your city with our comprehensive database</p>
+        </div>
+
+        <div class="search-container">
+            <form id="searchForm" class="search-form">
+                <div class="form-group">
+                    <label for="city">
+                        <i class="fas fa-map-marker-alt"></i>
+                        City
+                    </label>
+                    <input type="text" id="city" name="city" placeholder="Enter city name..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="businessType">
+                        <i class="fas fa-building"></i>
+                        Business Type
+                    </label>
+                    <select id="businessType" name="businessType" required>
+                        <option value="">Select business type...</option>
+                        <option value="restaurant">Restaurant</option>
+                        <option value="gas_station">Gas Station</option>
+                        <option value="hospital">Hospital</option>
+                        <option value="pharmacy">Pharmacy</option>
+                        <option value="bank">Bank</option>
+                        <option value="atm">ATM</option>
+                        <option value="supermarket">Supermarket</option>
+                        <option value="shopping_mall">Shopping Mall</option>
+                        <option value="hotel">Hotel</option>
+                        <option value="school">School</option>
+                        <option value="gym">Gym</option>
+                        <option value="beauty_salon">Beauty Salon</option>
+                        <option value="car_repair">Car Repair</option>
+                        <option value="dentist">Dentist</option>
+                        <option value="lawyer">Lawyer</option>
+                        <option value="real_estate_agency">Real Estate</option>
+                        <option value="tourist_attraction">Tourist Attraction</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="radius">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                        Search Radius
+                    </label>
+                    <select id="radius" name="radius" required>
+                        <option value="">Select radius...</option>
+                        <option value="5">5 km</option>
+                        <option value="10">10 km</option>
+                        <option value="20">20 km</option>
+                        <option value="50">50 km</option>
+                        <option value="100">100 km</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="searchBtn" class="search-btn">
+                    <i class="fas fa-search"></i>
+                    Search Businesses
+                </button>
+            </form>
+        </div>
+
+        <div id="authRequired" class="auth-required" style="display: none;">
+            <div class="auth-message">
+                <i class="fas fa-lock"></i>
+                <h3>Authentication Required</h3>
+                <p>Please sign in to search for businesses</p>
+                <div class="auth-buttons">
+                    <a href="login.html" class="btn btn-primary">Sign In</a>
+                    <a href="signup.html" class="btn btn-secondary">Sign Up</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p>Searching for businesses...</p>
+            </div>
+        </div>
+
+        <div id="resultsSection" class="results-section" style="display: none;">
+            <div class="results-header">
+                <h2 id="resultsTitle">Search Results</h2>
+                <div id="resultsCount" class="results-count"></div>
+            </div>
+            
+            <div class="results-layout">
+                <div id="mapContainer" class="map-container">
+                    <div id="map" class="map"></div>
+                </div>
+                
+                <div id="resultsList" class="results-list">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <div id="noResults" class="no-results" style="display: none;">
+            <i class="fas fa-search-minus"></i>
+            <h3>No businesses found</h3>
+            <p>Try adjusting your search criteria or expanding the search radius</p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Business Finder. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions-compat.js"></script>
+
+    <!-- Google Maps API (You'll need to add your API key) -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places" async defer></script>
+
+    <!-- Custom JavaScript -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
