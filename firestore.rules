@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Users collection
+    match /users/{userId} {
+      // Allow users to read any user document (for username display)
+      allow read: if request.auth != null;
+      
+      // Allow users to write only to their own document
+      allow write: if request.auth != null && 
+                      request.auth.uid == userId &&
+                      // Prevent users from making themselves admin
+                      (!('isAdmin' in resource.data) || resource.data.isAdmin == request.resource.data.isAdmin);
+      
+      // Allow admins to read and write any user document
+      allow read, write: if request.auth != null && 
+                            isAdmin(request.auth.uid);
+    }
+    
+    // Searches collection
+    match /searches/{searchId} {
+      // Users can read only their own searches
+      allow read: if request.auth != null && 
+                     request.auth.uid == resource.data.userId;
+      
+      // Users can create new searches
+      allow create: if request.auth != null && 
+                       request.auth.uid == request.resource.data.userId;
+      
+      // Users cannot update or delete searches
+      allow update, delete: if false;
+      
+      // Admins can read all searches
+      allow read: if request.auth != null && 
+                     isAdmin(request.auth.uid);
+      
+      // Search results subcollection
+      match /results/{resultId} {
+        // Inherit permissions from parent search document
+        allow read: if request.auth != null && 
+                       (request.auth.uid == get(/databases/$(database)/documents/searches/$(searchId)).data.userId ||
+                        isAdmin(request.auth.uid));
+        
+        // Only allow creation during search
+        allow create: if request.auth != null && 
+                         request.auth.uid == get(/databases/$(database)/documents/searches/$(searchId)).data.userId;
+        
+        allow update, delete: if false;
+      }
+    }
+    
+    // IP Usage collection - admin only
+    match /ipUsage/{ipAddress} {
+      allow read, write: if request.auth != null && 
+                            isAdmin(request.auth.uid);
+    }
+    
+    // Search cache collection
+    match /searchCache/{cacheKey} {
+      // All authenticated users can read cache
+      allow read: if request.auth != null;
+      
+      // Only Cloud Functions can write cache
+      allow write: if false;
+    }
+    
+    // Helper function to check if user is admin
+    function isAdmin(uid) {
+      return exists(/databases/$(database)/documents/users/$(uid)) &&
+             get(/databases/$(database)/documents/users/$(uid)).data.isAdmin == true;
+    }
+    
+    // Helper function to check if user is banned
+    function isBanned(uid) {
+      return exists(/databases/$(database)/documents/users/$(uid)) &&
+             get(/databases/$(database)/documents/users/$(uid)).data.isBanned == true;
+    }
+  }
+}
