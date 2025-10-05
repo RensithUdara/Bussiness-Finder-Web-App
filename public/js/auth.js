@@ -11,7 +11,7 @@ function waitForFirebase() {
             }
         };
         checkFirebase();
-        
+
         // Timeout after 10 seconds
         setTimeout(() => {
             reject(new Error('Firebase initialization timeout'));
@@ -65,7 +65,7 @@ async function handleAuthStateChange(user) {
             // Check if user is banned
             const userData = await getUserData(user.uid);
             if (userData && userData.isBanned) {
-                const auth = getAuth();
+                const auth = await getAuth();
                 await auth.signOut();
                 showNotification('Your account has been banned. Please contact support.', 'error');
                 return;
