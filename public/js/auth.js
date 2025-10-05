@@ -241,7 +241,7 @@ async function handleLogin(e) {
         }
 
         // Update last login
-        const db = getDb();
+        const db = await getDb();
         await db.collection('users').doc(user.uid).update({
             lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
             lastLoginIP: 'client-ip' // This would be set by a Cloud Function
