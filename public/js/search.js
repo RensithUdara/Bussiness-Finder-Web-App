@@ -11,7 +11,7 @@ function waitForFirebase() {
             }
         };
         checkFirebase();
-        
+
         // Timeout after 10 seconds
         setTimeout(() => {
             reject(new Error('Firebase initialization timeout'));
@@ -78,7 +78,7 @@ async function handleSearch(e) {
 
     try {
         // Call Cloud Function to search businesses
-        const functions = getFunctions();
+        const functions = await getFunctions();
         const searchBusinesses = functions.httpsCallable('searchBusinesses');
         const result = await searchBusinesses({
             city: city,
