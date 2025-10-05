@@ -14,6 +14,12 @@ function initializeAuth() {
         unsubscribeAuth();
     }
 
+    const { auth } = getFirebaseServices();
+    if (!auth) {
+        console.error('Firebase auth not initialized');
+        return;
+    }
+
     unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
         currentUser = user;
         await handleAuthStateChange(user);
