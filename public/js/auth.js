@@ -140,6 +140,7 @@ async function handleAuthStateChange(user) {
 // Handle user logout
 async function handleLogout() {
     try {
+        const auth = getAuth();
         await auth.signOut();
         showNotification('Logged out successfully', 'success');
 
@@ -215,6 +216,7 @@ async function handleLogin(e) {
 
     try {
         // Sign in user
+        const auth = getAuth();
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         const user = userCredential.user;
 
