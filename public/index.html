@@ -148,9 +148,18 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions-compat.js"></script>
 
-    <!-- Google Maps API (You'll need to add your API key) -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places" async
-        defer></script>
+    <!-- Google Maps API -->
+    <script>
+        // Load Google Maps API with configuration
+        (function () {
+            const script = document.createElement('script');
+            const apiKey = window.appConfig?.googleMaps?.apiKey || 'YOUR_GOOGLE_MAPS_API_KEY';
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        })();
+    </script>
 
     <!-- Custom JavaScript -->
     <script src="js/config.js"></script>
