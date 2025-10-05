@@ -1,16 +1,27 @@
 // Search functionality
-// Get Firebase services from global scope
-function getFirebaseServices() {
-    return window.firebaseApp || {};
+// Wait for Firebase services to be initialized
+function waitForFirebase() {
+    return new Promise((resolve, reject) => {
+        const checkFirebase = () => {
+            if (window.firebaseApp && window.firebaseApp.functions) {
+                resolve(window.firebaseApp);
+            } else {
+                console.log('Waiting for Firebase initialization...');
+                setTimeout(checkFirebase, 100);
+            }
+        };
+        checkFirebase();
+        
+        // Timeout after 10 seconds
+        setTimeout(() => {
+            reject(new Error('Firebase initialization timeout'));
+        }, 10000);
+    });
 }
 
 // Helper to get functions service safely
-function getFunctions() {
-    const services = getFirebaseServices();
-    if (!services.functions) {
-        console.error('Firebase functions not initialized');
-        throw new Error('Firebase functions not available');
-    }
+async function getFunctions() {
+    const services = await waitForFirebase();
     return services.functions;
 }
 
