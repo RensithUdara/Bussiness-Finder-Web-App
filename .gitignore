@@ -10,14 +10,11 @@ firebase-debug.log
 firebase-debug.*.log
 
 # Environment variables
-.env
-.env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
@@ -65,7 +62,6 @@ jspm_packages/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
 
 # next.js build output
 .next
@@ -102,3 +98,4 @@ build/
 # Temporary files
 tmp/
 temp/
+config.bat
