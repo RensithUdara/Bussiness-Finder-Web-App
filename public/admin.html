@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Business Finder</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="admin-page">
+    <nav class="navbar admin-navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-cog"></i>
+                <span>Admin Panel</span>
+            </div>
+            <div class="nav-menu">
+                <div class="admin-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Administrator</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        Home
+                    </a>
+                    <button id="logoutBtn" class="nav-link logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <div class="admin-sidebar">
+            <div class="sidebar-menu">
+                <button class="sidebar-item active" data-tab="dashboard">
+                    <i class="fas fa-chart-dashboard"></i>
+                    Dashboard
+                </button>
+                <button class="sidebar-item" data-tab="users">
+                    <i class="fas fa-users"></i>
+                    User Management
+                </button>
+                <button class="sidebar-item" data-tab="searches">
+                    <i class="fas fa-search"></i>
+                    Search History
+                </button>
+                <button class="sidebar-item" data-tab="ip-usage">
+                    <i class="fas fa-network-wired"></i>
+                    IP Usage
+                </button>
+            </div>
+        </div>
+
+        <div class="admin-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="tab-header">
+                    <h2><i class="fas fa-chart-dashboard"></i> Dashboard</h2>
+                    <p>Overview of your Business Finder application</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalUsers">0</h3>
+                            <p>Total Users</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalSearches">0</h3>
+                            <p>Total Searches</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="todaySearches">0</h3>
+                            <p>Searches Today</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="bannedUsers">0</h3>
+                            <p>Banned Users</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Popular Business Types</h3>
+                        <div id="businessTypeChart" class="chart-container">
+                            <!-- Chart will be rendered here -->
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Most Searched Cities</h3>
+                        <div id="cityChart" class="chart-container">
+                            <!-- Chart will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="users" class="tab-content">
+                <div class="tab-header">
+                    <h2><i class="fas fa-users"></i> User Management</h2>
+                    <div class="tab-actions">
+                        <div class="search-box">
+                            <input type="text" id="userSearch" placeholder="Search users...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <select id="userFilter">
+                            <option value="all">All Users</option>
+                            <option value="admin">Admins Only</option>
+                            <option value="banned">Banned Users</option>
+                            <option value="active">Active Users</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="usersTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="selectAllUsers"></th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Trials</th>
+                                <th>Registered</th>
+                                <th>Last Login</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- Users will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bulk-actions">
+                    <button id="bulkBan" class="btn btn-danger" disabled>
+                        <i class="fas fa-ban"></i>
+                        Ban Selected
+                    </button>
+                    <button id="bulkDelete" class="btn btn-danger" disabled>
+                        <i class="fas fa-trash"></i>
+                        Delete Selected
+                    </button>
+                </div>
+
+                <div class="pagination">
+                    <button id="prevUsers" class="pagination-btn">Previous</button>
+                    <span id="usersPageInfo">Page 1 of 1</span>
+                    <button id="nextUsers" class="pagination-btn">Next</button>
+                </div>
+            </div>
+
+            <!-- Searches Tab -->
+            <div id="searches" class="tab-content">
+                <div class="tab-header">
+                    <h2><i class="fas fa-search"></i> Search History</h2>
+                    <div class="tab-actions">
+                        <input type="date" id="searchDateFrom">
+                        <input type="date" id="searchDateTo">
+                        <button id="exportSearches" class="btn btn-primary">
+                            <i class="fas fa-download"></i>
+                            Export CSV
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="searchesTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>City</th>
+                                <th>Business Type</th>
+                                <th>Radius</th>
+                                <th>Results</th>
+                                <th>Date</th>
+                                <th>IP Address</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="searchesTableBody">
+                            <!-- Searches will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination">
+                    <button id="prevSearches" class="pagination-btn">Previous</button>
+                    <span id="searchesPageInfo">Page 1 of 1</span>
+                    <button id="nextSearches" class="pagination-btn">Next</button>
+                </div>
+            </div>
+
+            <!-- IP Usage Tab -->
+            <div id="ip-usage" class="tab-content">
+                <div class="tab-header">
+                    <h2><i class="fas fa-network-wired"></i> IP Usage Management</h2>
+                    <p>Monitor and manage IP addresses</p>
+                </div>
+
+                <div class="table-container">
+                    <table id="ipTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>IP Address</th>
+                                <th>Account Count</th>
+                                <th>First Seen</th>
+                                <th>Last Seen</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ipTableBody">
+                            <!-- IP data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit User</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId">
+                    <div class="form-group">
+                        <label for="editUsername">Username</label>
+                        <input type="text" id="editUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email</label>
+                        <input type="email" id="editEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTrialCount">Trial Count</label>
+                        <input type="number" id="editTrialCount" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="editIsAdmin">
+                            <span class="checkmark"></span>
+                            Administrator
+                        </label>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary close">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Search Results Modal -->
+    <div id="searchResultsModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>Search Results</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="searchResultsContent">
+                    <!-- Search results will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions-compat.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+
+    <script>
+        // Initialize admin page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAdminPage();
+        });
+    </script>
+</body>
+</html>
