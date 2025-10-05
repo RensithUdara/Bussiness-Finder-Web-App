@@ -1,5 +1,8 @@
 // Authentication handling
-const { auth, db } = window.firebaseApp;
+// Get Firebase services from global scope
+function getFirebaseServices() {
+    return window.firebaseApp || {};
+}
 
 // Initialize authentication state listener
 let currentUser = null;
