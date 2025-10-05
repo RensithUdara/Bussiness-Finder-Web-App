@@ -1,5 +1,5 @@
 // Main application logic
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializeApp();
 });
 
@@ -7,10 +7,10 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeApp() {
     // Set up global error handling
     setupErrorHandling();
-    
+
     // Initialize based on current page
     const currentPage = window.location.pathname;
-    
+
     if (currentPage.includes('admin.html')) {
         // Admin page initialization is handled in admin.js
         return;
@@ -32,24 +32,24 @@ function initializeMainPage() {
     if (window.authModule) {
         window.authModule.initializeAuth();
     }
-    
+
     // Initialize search functionality
     if (window.searchModule) {
         window.searchModule.initializeSearch();
     }
-    
+
     // Check for Google Maps API
     checkGoogleMapsAPI();
-    
+
     // Set up responsive menu (if needed)
     setupResponsiveMenu();
-    
+
     // Set up smooth scrolling
     setupSmoothScrolling();
-    
+
     // Initialize tooltips (if any)
     initializeTooltips();
-    
+
     // Check for updates (optional feature)
     checkForUpdates();
 }
@@ -57,26 +57,26 @@ function initializeMainPage() {
 // Setup global error handling
 function setupErrorHandling() {
     // Handle uncaught errors
-    window.addEventListener('error', function(event) {
+    window.addEventListener('error', function (event) {
         console.error('Global error:', event.error);
-        
+
         // Don't show notification for minor errors
         if (event.error && event.error.name !== 'ResizeObserver loop limit exceeded') {
             showNotification('Something went wrong. Please refresh the page.', 'error');
         }
     });
-    
+
     // Handle unhandled promise rejections
-    window.addEventListener('unhandledrejection', function(event) {
+    window.addEventListener('unhandledrejection', function (event) {
         console.error('Unhandled promise rejection:', event.reason);
-        
+
         // Prevent the default browser behavior
         event.preventDefault();
-        
+
         // Show user-friendly error message
         showNotification('Network error. Please check your connection.', 'error');
     });
-    
+
     // Handle Firebase Auth errors globally
     if (window.firebaseApp && window.firebaseApp.auth) {
         window.firebaseApp.auth.onAuthStateChanged(null, (error) => {
@@ -90,13 +90,13 @@ function setupErrorHandling() {
 function checkGoogleMapsAPI() {
     let attempts = 0;
     const maxAttempts = 10;
-    
+
     const checkAPI = () => {
         if (typeof google !== 'undefined' && google.maps) {
             console.log('Google Maps API loaded successfully');
             return;
         }
-        
+
         attempts++;
         if (attempts < maxAttempts) {
             setTimeout(checkAPI, 500);
@@ -105,7 +105,7 @@ function checkGoogleMapsAPI() {
             showMapAPIError();
         }
     };
-    
+
     // Start checking after a short delay
     setTimeout(checkAPI, 1000);
 }
@@ -125,7 +125,7 @@ function showMapAPIError() {
                 </button>
             </div>
         `;
-        
+
         // Add error styles
         const style = document.createElement('style');
         style.textContent = `
@@ -201,7 +201,7 @@ function initializeTooltips() {
 function showTooltip(event) {
     const title = event.target.getAttribute('title');
     if (!title) return;
-    
+
     // Create tooltip element
     const tooltip = document.createElement('div');
     tooltip.className = 'custom-tooltip';
@@ -218,22 +218,22 @@ function showTooltip(event) {
         opacity: 0;
         transition: opacity 0.2s;
     `;
-    
+
     document.body.appendChild(tooltip);
-    
+
     // Position tooltip
     const rect = event.target.getBoundingClientRect();
     tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
     tooltip.style.top = rect.top - tooltip.offsetHeight - 5 + 'px';
-    
+
     // Show tooltip
     setTimeout(() => {
         tooltip.style.opacity = '1';
     }, 100);
-    
+
     // Store reference for cleanup
     event.target._tooltip = tooltip;
-    
+
     // Temporarily remove title to prevent browser default
     event.target._originalTitle = title;
     event.target.removeAttribute('title');
@@ -246,7 +246,7 @@ function hideTooltip(event) {
         tooltip.remove();
         event.target._tooltip = null;
     }
-    
+
     // Restore title
     if (event.target._originalTitle) {
         event.target.setAttribute('title', event.target._originalTitle);
@@ -259,7 +259,7 @@ function checkForUpdates() {
     // This would typically check a version endpoint
     // For now, just a placeholder
     console.log('Checking for updates...');
-    
+
     // You could implement version checking here
     // const currentVersion = '1.0.0';
     // fetch('/api/version').then(...)
@@ -280,7 +280,7 @@ function debounce(func, wait) {
 
 function throttle(func, limit) {
     let inThrottle;
-    return function() {
+    return function () {
         const args = arguments;
         const context = this;
         if (!inThrottle) {
@@ -297,19 +297,19 @@ function monitorPerformance() {
     window.addEventListener('load', () => {
         const loadTime = performance.now();
         console.log(`Page loaded in ${Math.round(loadTime)}ms`);
-        
+
         // You could send this to analytics
         if (loadTime > 3000) {
             console.warn('Slow page load detected');
         }
     });
-    
+
     // Monitor memory usage (if available)
     if (performance.memory) {
         setInterval(() => {
             const memory = performance.memory;
             const memoryUsage = Math.round(memory.usedJSHeapSize / 1024 / 1024);
-            
+
             if (memoryUsage > 100) { // 100MB
                 console.warn('High memory usage detected:', memoryUsage + 'MB');
             }
@@ -331,7 +331,7 @@ function setupOfflineHandling() {
             showNotification('You are offline. Some features may not work.', 'warning', 0);
         }
     }
-    
+
     window.addEventListener('online', updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
 }
@@ -356,7 +356,7 @@ function setupKeyboardShortcuts() {
                 cityInput.focus();
             }
         }
-        
+
         // Escape to close modals
         if (e.key === 'Escape') {
             const openModals = document.querySelectorAll('.modal[style*="block"]');
@@ -379,9 +379,9 @@ function checkBrowserCompatibility() {
         'sessionStorage',
         'addEventListener'
     ];
-    
+
     const missingFeatures = requiredFeatures.filter(feature => !(feature in window));
-    
+
     if (missingFeatures.length > 0) {
         console.warn('Missing browser features:', missingFeatures);
         showNotification(
