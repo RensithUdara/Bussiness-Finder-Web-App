@@ -289,7 +289,7 @@ async function handlePasswordReset(e) {
     const resetMessage = document.getElementById('resetMessage');
 
     try {
-        const auth = getAuth();
+        const auth = await getAuth();
         await auth.sendPasswordResetEmail(email);
         showSuccess(resetMessage, 'Password reset email sent! Check your inbox.');
 
