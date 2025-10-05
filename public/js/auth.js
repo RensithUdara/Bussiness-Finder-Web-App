@@ -1,5 +1,8 @@
 // Authentication handling
-const { auth, db } = window.firebaseApp;
+// Get Firebase services from global scope
+function getFirebaseServices() {
+    return window.firebaseApp || {};
+}
 
 // Initialize authentication state listener
 let currentUser = null;
@@ -9,6 +12,12 @@ let unsubscribeAuth = null;
 function initializeAuth() {
     if (unsubscribeAuth) {
         unsubscribeAuth();
+    }
+
+    const { auth } = getFirebaseServices();
+    if (!auth) {
+        console.error('Firebase auth not initialized');
+        return;
     }
 
     unsubscribeAuth = auth.onAuthStateChanged(async (user) => {

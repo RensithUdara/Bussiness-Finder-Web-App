@@ -1,5 +1,8 @@
 // Search functionality
-const { db, functions } = window.firebaseApp;
+// Get Firebase services from global scope
+function getFirebaseServices() {
+    return window.firebaseApp || {};
+}
 
 let currentSearchResults = [];
 let searchInProgress = false;
