@@ -10,7 +10,7 @@ function initializeAuth() {
     if (unsubscribeAuth) {
         unsubscribeAuth();
     }
-    
+
     unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
         currentUser = user;
         await handleAuthStateChange(user);
@@ -23,7 +23,7 @@ async function handleAuthStateChange(user) {
     const trialCounter = document.getElementById('trialCounter');
     const authRequired = document.getElementById('authRequired');
     const searchForm = document.getElementById('searchForm');
-    
+
     if (user) {
         // User is signed in
         try {
@@ -34,7 +34,7 @@ async function handleAuthStateChange(user) {
                 showNotification('Your account has been banned. Please contact support.', 'error');
                 return;
             }
-            
+
             // Update UI for authenticated user
             if (authLinks) {
                 authLinks.innerHTML = `
@@ -47,17 +47,17 @@ async function handleAuthStateChange(user) {
                         Logout
                     </button>
                 `;
-                
+
                 // Add logout functionality
                 document.getElementById('logoutBtn').addEventListener('click', handleLogout);
             }
-            
+
             // Show trial counter
             if (trialCounter && userData) {
                 const trialCount = userData.trialCount || 0;
                 document.getElementById('trialCount').textContent = `Trials remaining: ${trialCount}`;
                 trialCounter.style.display = 'block';
-                
+
                 // Update counter styling based on remaining trials
                 if (trialCount === 0) {
                     trialCounter.style.background = 'linear-gradient(135deg, #dc3545, #c82333)';
@@ -65,17 +65,17 @@ async function handleAuthStateChange(user) {
                     trialCounter.style.background = 'linear-gradient(135deg, #ffc107, #e0a800)';
                 }
             }
-            
+
             // Hide auth required message
             if (authRequired) {
                 authRequired.style.display = 'none';
             }
-            
+
             // Enable search form
             if (searchForm) {
                 searchForm.style.display = 'block';
             }
-            
+
         } catch (error) {
             console.error('Error handling authenticated user:', error);
             showNotification('Error loading user data', 'error');
@@ -94,17 +94,17 @@ async function handleAuthStateChange(user) {
                 </a>
             `;
         }
-        
+
         // Hide trial counter
         if (trialCounter) {
             trialCounter.style.display = 'none';
         }
-        
+
         // Show auth required message on main page
         if (authRequired && window.location.pathname.includes('index.html')) {
             authRequired.style.display = 'block';
         }
-        
+
         // Hide search form
         if (searchForm) {
             searchForm.style.display = 'none';
@@ -117,7 +117,7 @@ async function handleLogout() {
     try {
         await auth.signOut();
         showNotification('Logged out successfully', 'success');
-        
+
         // Redirect to home page if on admin page
         if (window.location.pathname.includes('admin.html')) {
             window.location.href = 'index.html';
@@ -135,12 +135,12 @@ function initializeLoginPage() {
     const resetModal = document.getElementById('resetModal');
     const closeResetModal = document.getElementById('closeResetModal');
     const resetForm = document.getElementById('resetForm');
-    
+
     // Handle login form submission
     if (loginForm) {
         loginForm.addEventListener('submit', handleLogin);
     }
-    
+
     // Handle forgot password
     if (forgotPasswordLink) {
         forgotPasswordLink.addEventListener('click', (e) => {
@@ -148,19 +148,19 @@ function initializeLoginPage() {
             resetModal.style.display = 'block';
         });
     }
-    
+
     // Handle reset modal close
     if (closeResetModal) {
         closeResetModal.addEventListener('click', () => {
             resetModal.style.display = 'none';
         });
     }
-    
+
     // Handle password reset form
     if (resetForm) {
         resetForm.addEventListener('submit', handlePasswordReset);
     }
-    
+
     // Close modal when clicking outside
     if (resetModal) {
         resetModal.addEventListener('click', (e) => {
@@ -169,7 +169,7 @@ function initializeLoginPage() {
             }
         });
     }
-    
+
     // Initialize auth
     initializeAuth();
 }
@@ -177,22 +177,22 @@ function initializeLoginPage() {
 // Handle login form submission
 async function handleLogin(e) {
     e.preventDefault();
-    
+
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const loginBtn = document.getElementById('loginBtn');
     const errorMessage = document.getElementById('errorMessage');
     const successMessage = document.getElementById('successMessage');
-    
+
     // Show loading state
     setButtonLoading(loginBtn, true);
     hideMessages();
-    
+
     try {
         // Sign in user
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         const user = userCredential.user;
-        
+
         // Check if user is banned
         const userData = await getUserData(user.uid);
         if (userData && userData.isBanned) {
@@ -201,24 +201,24 @@ async function handleLogin(e) {
             setButtonLoading(loginBtn, false);
             return;
         }
-        
+
         // Update last login
         await db.collection('users').doc(user.uid).update({
             lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
             lastLoginIP: 'client-ip' // This would be set by a Cloud Function
         });
-        
+
         showSuccess(successMessage, 'Login successful! Redirecting...');
-        
+
         // Redirect after short delay
         setTimeout(() => {
             window.location.href = 'index.html';
         }, 1500);
-        
+
     } catch (error) {
         console.error('Login error:', error);
         let errorMsg = 'Login failed. Please try again.';
-        
+
         switch (error.code) {
             case 'auth/user-not-found':
                 errorMsg = 'No account found with this email address.';
@@ -236,7 +236,7 @@ async function handleLogin(e) {
                 errorMsg = 'Too many failed attempts. Please try again later.';
                 break;
         }
-        
+
         showError(errorMessage, errorMsg);
         setButtonLoading(loginBtn, false);
     }
@@ -245,27 +245,27 @@ async function handleLogin(e) {
 // Handle password reset
 async function handlePasswordReset(e) {
     e.preventDefault();
-    
+
     const email = document.getElementById('resetEmail').value;
     const resetMessage = document.getElementById('resetMessage');
-    
+
     try {
         await auth.sendPasswordResetEmail(email);
         showSuccess(resetMessage, 'Password reset email sent! Check your inbox.');
-        
+
         // Close modal after delay
         setTimeout(() => {
             document.getElementById('resetModal').style.display = 'none';
         }, 2000);
-        
+
     } catch (error) {
         console.error('Password reset error:', error);
         let errorMsg = 'Failed to send reset email.';
-        
+
         if (error.code === 'auth/user-not-found') {
             errorMsg = 'No account found with this email address.';
         }
-        
+
         showError(resetMessage, errorMsg);
     }
 }
@@ -275,22 +275,22 @@ function initializeSignupPage() {
     const signupForm = document.getElementById('signupForm');
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirmPassword');
-    
+
     // Handle signup form submission
     if (signupForm) {
         signupForm.addEventListener('submit', handleSignup);
     }
-    
+
     // Handle password strength indicator
     if (passwordInput) {
         passwordInput.addEventListener('input', updatePasswordStrength);
     }
-    
+
     // Handle password confirmation validation
     if (confirmPasswordInput) {
         confirmPasswordInput.addEventListener('input', validatePasswordMatch);
     }
-    
+
     // Initialize auth
     initializeAuth();
 }
@@ -298,7 +298,7 @@ function initializeSignupPage() {
 // Handle signup form submission
 async function handleSignup(e) {
     e.preventDefault();
-    
+
     const username = document.getElementById('username').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
@@ -307,44 +307,44 @@ async function handleSignup(e) {
     const signupBtn = document.getElementById('signupBtn');
     const errorMessage = document.getElementById('errorMessage');
     const successMessage = document.getElementById('successMessage');
-    
+
     // Validate inputs
     if (!agreeTerms) {
         showError(errorMessage, 'Please agree to the Terms of Service and Privacy Policy.');
         return;
     }
-    
+
     if (password !== confirmPassword) {
         showError(errorMessage, 'Passwords do not match.');
         return;
     }
-    
+
     if (password.length < 8) {
         showError(errorMessage, 'Password must be at least 8 characters long.');
         return;
     }
-    
+
     // Show loading state
     setButtonLoading(signupBtn, true);
     hideMessages();
-    
+
     try {
         // Check if username is already taken
         const usernameQuery = await db.collection('users')
             .where('username', '==', username)
             .limit(1)
             .get();
-            
+
         if (!usernameQuery.empty) {
             showError(errorMessage, 'Username is already taken. Please choose another.');
             setButtonLoading(signupBtn, false);
             return;
         }
-        
+
         // Create user account
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
-        
+
         // Create user document in Firestore
         await db.collection('users').doc(user.uid).set({
             uid: user.uid,
@@ -358,21 +358,21 @@ async function handleSignup(e) {
             lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
             emailVerified: false
         });
-        
+
         // Send email verification
         await user.sendEmailVerification();
-        
+
         showSuccess(successMessage, 'Account created successfully! Please check your email to verify your account. Redirecting to login...');
-        
+
         // Redirect after delay
         setTimeout(() => {
             window.location.href = 'login.html';
         }, 3000);
-        
+
     } catch (error) {
         console.error('Signup error:', error);
         let errorMsg = 'Registration failed. Please try again.';
-        
+
         switch (error.code) {
             case 'auth/email-already-in-use':
                 errorMsg = 'An account with this email already exists.';
@@ -384,7 +384,7 @@ async function handleSignup(e) {
                 errorMsg = 'Password is too weak. Please use a stronger password.';
                 break;
         }
-        
+
         showError(errorMessage, errorMsg);
         setButtonLoading(signupBtn, false);
     }
@@ -395,16 +395,16 @@ function updatePasswordStrength() {
     const password = document.getElementById('password').value;
     const strengthIndicator = document.getElementById('strengthIndicator');
     const strengthText = document.getElementById('strengthText');
-    
+
     let strength = 0;
     let feedback = '';
-    
+
     if (password.length >= 8) strength++;
     if (/[a-z]/.test(password)) strength++;
     if (/[A-Z]/.test(password)) strength++;
     if (/[0-9]/.test(password)) strength++;
     if (/[^A-Za-z0-9]/.test(password)) strength++;
-    
+
     switch (strength) {
         case 0:
         case 1:
@@ -433,7 +433,7 @@ function updatePasswordStrength() {
             feedback = 'Strong';
             break;
     }
-    
+
     strengthText.textContent = feedback;
 }
 
@@ -442,7 +442,7 @@ function validatePasswordMatch() {
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
     const confirmInput = document.getElementById('confirmPassword');
-    
+
     if (confirmPassword && password !== confirmPassword) {
         confirmInput.setCustomValidity('Passwords do not match');
         confirmInput.style.borderColor = '#dc3545';
@@ -455,19 +455,19 @@ function validatePasswordMatch() {
 // Check if user is admin and redirect if not
 async function requireAdmin() {
     const user = await getCurrentUser();
-    
+
     if (!user) {
         window.location.href = 'login.html';
         return false;
     }
-    
+
     const isAdmin = await checkAdminStatus(user);
     if (!isAdmin) {
         showNotification('Access denied. Admin privileges required.', 'error');
         window.location.href = 'index.html';
         return false;
     }
-    
+
     return true;
 }
 
@@ -475,7 +475,7 @@ async function requireAdmin() {
 function setButtonLoading(button, loading) {
     const btnText = button.querySelector('.btn-text');
     const btnSpinner = button.querySelector('.btn-spinner');
-    
+
     if (loading) {
         if (btnText) btnText.style.display = 'none';
         if (btnSpinner) btnSpinner.style.display = 'block';
@@ -504,7 +504,7 @@ function showSuccess(element, message) {
 function hideMessages() {
     const errorMessage = document.getElementById('errorMessage');
     const successMessage = document.getElementById('successMessage');
-    
+
     if (errorMessage) errorMessage.style.display = 'none';
     if (successMessage) successMessage.style.display = 'none';
 }
@@ -512,7 +512,7 @@ function hideMessages() {
 // Initialize auth when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     // Only initialize auth if not on specific pages that handle it themselves
-    if (!window.location.pathname.includes('login.html') && 
+    if (!window.location.pathname.includes('login.html') &&
         !window.location.pathname.includes('signup.html') &&
         !window.location.pathname.includes('admin.html')) {
         initializeAuth();
