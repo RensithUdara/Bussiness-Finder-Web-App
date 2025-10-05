@@ -17,7 +17,7 @@ const config = {
 
     // Google Maps API Key - Get this from Google Cloud Console
     googleMaps: {
-        apiKey: "YOUR_GOOGLE_MAPS_API_KEY_HERE" // Replace with your Google Maps API key
+        apiKey: "AIzaSyCL6XYYszTrjHMirCFAx_oG9YCNy8oYM6k" // Replace with your Google Maps API key
     },
 
     // Application settings
