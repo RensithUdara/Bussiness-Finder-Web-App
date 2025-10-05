@@ -1,12 +1,12 @@
 // Firebase Configuration
-// Replace with your actual Firebase config
+// Configuration for bussiness-finder project
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyB7YGGpGOzRNgFxgNvT2YrK4Lx1YoMcT9w", // This will be replaced with your actual key
+    authDomain: "bussiness-finder-8a04d.firebaseapp.com",
+    projectId: "bussiness-finder-8a04d",
+    storageBucket: "bussiness-finder-8a04d.appspot.com",
+    messagingSenderId: "895982258653",
+    appId: "1:895982258653:web:abcdef1234567890" // This will be replaced with your actual app ID
 };
 
 // Initialize Firebase
@@ -18,14 +18,13 @@ const db = firebase.firestore();
 const functions = firebase.functions();
 
 // For development, you can connect to emulators
-// Uncomment these lines if using Firebase emulators
-/*
-if (location.hostname === 'localhost') {
-    auth.useEmulator('http://localhost:9099');
+// Enable emulators for local development
+if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+    // Uncomment these lines when Firebase emulators are running
+    // auth.useEmulator('http://localhost:9099');
     db.useEmulator('localhost', 8080);
     functions.useEmulator('localhost', 5001);
 }
-*/
 
 // Export initialized services
 window.firebaseApp = {
