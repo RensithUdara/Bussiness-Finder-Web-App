@@ -4,6 +4,16 @@ function getFirebaseServices() {
     return window.firebaseApp || {};
 }
 
+// Helper to get functions service safely
+function getFunctions() {
+    const services = getFirebaseServices();
+    if (!services.functions) {
+        console.error('Firebase functions not initialized');
+        throw new Error('Firebase functions not available');
+    }
+    return services.functions;
+}
+
 let currentSearchResults = [];
 let searchInProgress = false;
 
@@ -57,6 +67,7 @@ async function handleSearch(e) {
 
     try {
         // Call Cloud Function to search businesses
+        const functions = getFunctions();
         const searchBusinesses = functions.httpsCallable('searchBusinesses');
         const result = await searchBusinesses({
             city: city,
