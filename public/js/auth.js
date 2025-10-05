@@ -34,12 +34,7 @@ function initializeAuth() {
         unsubscribeAuth();
     }
 
-    const { auth } = getFirebaseServices();
-    if (!auth) {
-        console.error('Firebase auth not initialized');
-        return;
-    }
-
+    const auth = getAuth();
     unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
         currentUser = user;
         await handleAuthStateChange(user);
@@ -59,7 +54,7 @@ async function handleAuthStateChange(user) {
             // Check if user is banned
             const userData = await getUserData(user.uid);
             if (userData && userData.isBanned) {
-                const { auth } = getFirebaseServices();
+                const auth = getAuth();
                 await auth.signOut();
                 showNotification('Your account has been banned. Please contact support.', 'error');
                 return;
