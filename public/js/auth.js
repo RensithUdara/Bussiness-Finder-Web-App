@@ -278,6 +278,7 @@ async function handlePasswordReset(e) {
     const resetMessage = document.getElementById('resetMessage');
 
     try {
+        const auth = getAuth();
         await auth.sendPasswordResetEmail(email);
         showSuccess(resetMessage, 'Password reset email sent! Check your inbox.');
 
@@ -358,6 +359,7 @@ async function handleSignup(e) {
 
     try {
         // Check if username is already taken
+        const db = getDb();
         const usernameQuery = await db.collection('users')
             .where('username', '==', username)
             .limit(1)
@@ -370,6 +372,7 @@ async function handleSignup(e) {
         }
 
         // Create user account
+        const auth = getAuth();
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
 
@@ -535,6 +538,18 @@ function hideMessages() {
 
     if (errorMessage) errorMessage.style.display = 'none';
     if (successMessage) successMessage.style.display = 'none';
+}
+
+// Get user data from Firestore
+async function getUserData(uid) {
+    try {
+        const db = getDb();
+        const userDoc = await db.collection('users').doc(uid).get();
+        return userDoc.exists ? userDoc.data() : null;
+    } catch (error) {
+        console.error('Error getting user data:', error);
+        return null;
+    }
 }
 
 // Initialize auth when DOM is loaded
