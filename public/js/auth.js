@@ -39,6 +39,7 @@ async function handleAuthStateChange(user) {
             // Check if user is banned
             const userData = await getUserData(user.uid);
             if (userData && userData.isBanned) {
+                const { auth } = getFirebaseServices();
                 await auth.signOut();
                 showNotification('Your account has been banned. Please contact support.', 'error');
                 return;
